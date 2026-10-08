@@ -2,279 +2,229 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Dust Frontier — 3D Western Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dust & Iron - Western 3D</title>
+
+<!-- THREE.JS CDN -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
 <style>
-* {
-    box-sizing: border-box;
+*{
+    box-sizing:border-box;
 }
 
-html, body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #000;
-    font-family: Arial, Helvetica, sans-serif;
-    color: white;
+body{
+    margin:0;
+    overflow:hidden;
+    background:#000;
+    font-family:Arial,Helvetica,sans-serif;
+    color:white;
 }
 
-canvas {
-    display: block;
+canvas{
+    display:block;
 }
 
-#ui {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 10;
-}
-
-#crosshair {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 18px;
-    height: 18px;
-    transform: translate(-50%, -50%);
-}
-
-#crosshair::before,
-#crosshair::after {
-    content: "";
-    position: absolute;
-    background: white;
-    box-shadow: 0 0 4px black;
-}
-
-#crosshair::before {
-    width: 18px;
-    height: 2px;
-    left: 0;
-    top: 8px;
-}
-
-#crosshair::after {
-    width: 2px;
-    height: 18px;
-    left: 8px;
-    top: 0;
-}
-
-#hud {
-    position: absolute;
-    left: 20px;
-    bottom: 20px;
-    width: 270px;
-}
-
-.bar {
-    height: 16px;
-    margin-top: 6px;
-    border: 2px solid rgba(255,255,255,.7);
-    background: rgba(0,0,0,.55);
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-.fill {
-    height: 100%;
-    width: 100%;
-}
-
-#healthFill {
-    background: #b52c25;
-}
-
-#staminaFill {
-    background: #e0a62b;
-}
-
-#deadEyeFill {
-    background: #3f83c9;
-}
-
-.label {
-    font-size: 11px;
-    text-shadow: 0 2px 3px #000;
-}
-
-#ammo {
-    position: absolute;
-    right: 25px;
-    bottom: 25px;
-    font-size: 30px;
-    font-weight: bold;
-    text-shadow: 0 3px 4px #000;
-}
-
-#money {
-    position: absolute;
-    right: 25px;
-    top: 20px;
-    font-size: 21px;
-    text-shadow: 0 2px 3px #000;
-}
-
-#wanted {
-    position: absolute;
-    right: 25px;
-    top: 55px;
-    font-size: 22px;
-    color: #e4d2b0;
-    text-shadow: 0 2px 3px #000;
-}
-
-#mission {
-    position: absolute;
-    left: 50%;
-    top: 28px;
-    transform: translateX(-50%);
-    width: 500px;
-    text-align: center;
-    text-shadow: 0 2px 4px #000;
-}
-
-#missionTitle {
-    font-size: 20px;
-    font-weight: bold;
-}
-
-#missionText {
-    margin-top: 5px;
-    font-size: 14px;
-}
-
-#message {
-    position: absolute;
-    left: 50%;
-    bottom: 150px;
-    transform: translateX(-50%);
-    padding: 12px 22px;
-    background: rgba(0,0,0,.7);
-    border-radius: 6px;
-    opacity: 0;
-    transition: opacity .2s;
-    text-align: center;
-}
-
-#prompt {
-    position: absolute;
-    left: 50%;
-    bottom: 100px;
-    transform: translateX(-50%);
-    font-size: 15px;
-    text-shadow: 0 2px 4px black;
-}
-
-#speed {
-    position: absolute;
-    right: 25px;
-    bottom: 75px;
-    font-size: 14px;
-    opacity: .8;
-}
-
-#startScreen {
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+#start{
+    position:fixed;
+    inset:0;
     background:
-        radial-gradient(circle at center, rgba(80,50,25,.2), rgba(0,0,0,.96)),
-        #18100a;
+        radial-gradient(circle at center,
+        rgba(100,55,20,.35),
+        rgba(0,0,0,.95));
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    z-index:20;
+    text-align:center;
 }
 
-#startScreen h1 {
-    margin: 0;
-    font-family: Georgia, serif;
-    font-size: 72px;
-    letter-spacing: 7px;
-    text-shadow: 0 5px 15px black;
+#start h1{
+    font-size:70px;
+    letter-spacing:10px;
+    margin:0;
+    color:#e5b36a;
+    text-shadow:0 5px 20px black;
 }
 
-#startScreen p {
-    color: #d8c3a2;
-    max-width: 650px;
-    text-align: center;
-    line-height: 1.6;
+#start p{
+    font-size:18px;
+    color:#ddd;
+    margin:15px;
 }
 
-#startButton {
-    margin-top: 30px;
-    padding: 15px 45px;
-    border: 1px solid #d3b184;
-    background: #8c4d27;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-    border-radius: 4px;
+#play{
+    padding:18px 45px;
+    font-size:20px;
+    font-weight:bold;
+    background:#8b4c20;
+    border:2px solid #d89b55;
+    color:white;
+    cursor:pointer;
+    border-radius:5px;
 }
 
-#startButton:hover {
-    background: #b66a38;
+#play:hover{
+    background:#b86b2c;
 }
 
-#controls {
-    margin-top: 25px;
-    font-size: 13px;
-    color: #aaa;
-    text-align: center;
-    line-height: 1.8;
+#hud{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:10;
 }
 
-#fade {
-    position: fixed;
-    inset: 0;
-    background: black;
-    pointer-events: none;
-    opacity: 0;
-    z-index: 90;
+#stats{
+    position:absolute;
+    left:20px;
+    bottom:20px;
+    width:240px;
+}
+
+.bar{
+    width:240px;
+    height:16px;
+    background:rgba(0,0,0,.65);
+    border:1px solid white;
+    margin-top:5px;
+}
+
+.fill{
+    height:100%;
+    width:100%;
+}
+
+#healthFill{
+    background:#b52c25;
+}
+
+#staminaFill{
+    background:#d6a83c;
+}
+
+#deadFill{
+    background:#6090d8;
+}
+
+.label{
+    font-size:12px;
+    margin-top:6px;
+}
+
+#ammo{
+    position:absolute;
+    right:25px;
+    bottom:25px;
+    font-size:25px;
+    font-weight:bold;
+    text-shadow:2px 2px 5px black;
+}
+
+#mission{
+    position:absolute;
+    top:25px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:18px;
+    text-align:center;
+    text-shadow:2px 2px 5px black;
+}
+
+#wanted{
+    position:absolute;
+    top:25px;
+    right:25px;
+    font-size:22px;
+    color:#f0d18b;
+}
+
+#message{
+    position:absolute;
+    bottom:130px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:18px;
+    text-align:center;
+    text-shadow:2px 2px 5px black;
+}
+
+#crosshair{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:20px;
+    height:20px;
+    transform:translate(-50%,-50%);
+}
+
+#crosshair:before,
+#crosshair:after{
+    content:"";
+    position:absolute;
+    background:white;
+    box-shadow:0 0 3px black;
+}
+
+#crosshair:before{
+    width:2px;
+    height:20px;
+    left:9px;
+}
+
+#crosshair:after{
+    height:2px;
+    width:20px;
+    top:9px;
+}
+
+#prompt{
+    position:absolute;
+    bottom:75px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:16px;
+    text-shadow:2px 2px 5px black;
 }
 </style>
 </head>
 
 <body>
 
-<div id="startScreen">
-    <h1>DUST FRONTIER</h1>
+<!-- START SCREEN -->
+<div id="start">
+
+    <h1>DUST & IRON</h1>
+
     <p>
-        A cinematic 3D western sandbox adventure.
-        Explore the frontier, ride your horse, hunt outlaws,
-        take bounty missions and survive the lawless desert.
+        A 3D western frontier
     </p>
 
-    <button id="startButton">ENTER THE FRONTIER</button>
+    <p>
+        <b>Press ENTER</b> or click below
+    </p>
 
-    <div id="controls">
-        WASD — Move &nbsp; | &nbsp;
-        SHIFT — Sprint/Gallop &nbsp; | &nbsp;
-        SPACE — Jump<br>
-        E — Mount/Dismount &nbsp; | &nbsp;
-        F — Interact &nbsp; | &nbsp;
-        R — Reload &nbsp; | &nbsp;
-        LMB — Shoot &nbsp; | &nbsp;
-        ESC — Release mouse
-    </div>
+    <button id="play">
+        ENTER THE FRONTIER
+    </button>
+
 </div>
 
-<div id="ui">
-
-    <div id="crosshair"></div>
+<!-- HUD -->
+<div id="hud">
 
     <div id="mission">
-        <div id="missionTitle">THE FRONTIER</div>
-        <div id="missionText">Ride into town and find work.</div>
+        Mission: Ride into town and speak with the sheriff
     </div>
 
-    <div id="money">$50</div>
-    <div id="wanted">WANTED: ☆☆☆☆☆</div>
+    <div id="wanted">
+        Wanted: ☆☆☆☆☆
+    </div>
 
-    <div id="hud">
+    <div id="stats">
+
         <div class="label">HEALTH</div>
         <div class="bar">
             <div id="healthFill" class="fill"></div>
@@ -287,1868 +237,873 @@ canvas {
 
         <div class="label">DEAD EYE</div>
         <div class="bar">
-            <div id="deadEyeFill" class="fill"></div>
+            <div id="deadFill" class="fill"></div>
         </div>
+
     </div>
 
-    <div id="ammo">6 / 36</div>
-    <div id="speed">0 mph</div>
-    <div id="prompt"></div>
+    <div id="ammo">
+        6 / 36
+    </div>
+
     <div id="message"></div>
+
+    <div id="prompt"></div>
+
+    <div id="crosshair"></div>
 
 </div>
 
-<div id="fade"></div>
-
-<script type="module">
-
-import * as THREE from
-"https://cdn.jsdelivr.net/npm/three@0.180.0/+esm";
-
-import { OrbitControls } from
-"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js";
-
+<script>
 
 /* =========================================================
-   BASIC SETUP
+   GAME VARIABLES
 ========================================================= */
 
-const scene = new THREE.Scene();
+let scene;
+let camera;
+let renderer;
+let clock;
 
-scene.background = new THREE.Color(0x8ab3d4);
+let player;
+let horse;
 
-scene.fog = new THREE.Fog(
-    0x8ab3d4,
-    80,
-    650
-);
+let enemies = [];
+let npcs = [];
+let bullets = [];
 
-const camera = new THREE.PerspectiveCamera(
-    65,
-    innerWidth / innerHeight,
-    0.1,
-    1500
-);
+let gameStarted = false;
+let paused = false;
 
-camera.position.set(0, 7, 12);
+let keys = {};
 
-const renderer = new THREE.WebGLRenderer({
-    antialias: true
-});
+let mouseX = 0;
+let mouseY = 0;
 
-renderer.setSize(
-    innerWidth,
-    innerHeight
-);
+let cameraYaw = 0;
+let cameraPitch = 0;
 
-renderer.setPixelRatio(
-    Math.min(devicePixelRatio, 2)
-);
+let ammo = 6;
+let reserveAmmo = 36;
 
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type =
-    THREE.PCFSoftShadowMap;
+let reloading = false;
+let reloadTimer = 0;
 
-renderer.outputColorSpace =
-    THREE.SRGBColorSpace;
+let messageTimer = 0;
 
-document.body.appendChild(renderer.domElement);
+let timeOfDay = 0;
 
+let game = {
+
+    health:100,
+    stamina:100,
+    deadEye:100,
+    wanted:0,
+    dead:false
+
+};
+
+/* =========================================================
+   INIT
+========================================================= */
+
+function init(){
+
+    scene = new THREE.Scene();
+
+    scene.background =
+        new THREE.Color(0x87b6d9);
+
+    scene.fog =
+        new THREE.Fog(0x87b6d9,80,500);
+
+    clock = new THREE.Clock();
+
+    renderer =
+        new THREE.WebGLRenderer({
+            antialias:true
+        });
+
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
+
+    renderer.setPixelRatio(
+        Math.min(window.devicePixelRatio,2)
+    );
+
+    renderer.shadowMap.enabled = true;
+
+    document.body.appendChild(
+        renderer.domElement
+    );
+
+    camera =
+        new THREE.PerspectiveCamera(
+            70,
+            window.innerWidth/window.innerHeight,
+            .1,
+            1000
+        );
+
+    camera.position.set(
+        0,
+        4,
+        15
+    );
+
+    createLights();
+
+    createWorld();
+
+    createPlayer();
+
+    createHorse();
+
+    createTown();
+
+    createNPCs();
+
+    createEnemies();
+
+    setupInput();
+
+    window.addEventListener(
+        "resize",
+        resize
+    );
+
+    animate();
+}
 
 /* =========================================================
    LIGHTING
 ========================================================= */
 
-const ambient = new THREE.HemisphereLight(
-    0xddeeff,
-    0x5c321c,
-    1.7
-);
-
-scene.add(ambient);
-
-const sun = new THREE.DirectionalLight(
-    0xffe1ad,
-    3
-);
-
-sun.position.set(
-    -100,
-    180,
-    100
-);
-
-sun.castShadow = true;
-
-sun.shadow.mapSize.width = 2048;
-sun.shadow.mapSize.height = 2048;
-
-sun.shadow.camera.left = -300;
-sun.shadow.camera.right = 300;
-sun.shadow.camera.top = 300;
-sun.shadow.camera.bottom = -300;
-
-scene.add(sun);
-
-
-/* =========================================================
-   GAME STATE
-========================================================= */
-
-const game = {
-
-    started: false,
-
-    health: 100,
-    stamina: 100,
-    deadEye: 100,
-
-    money: 50,
-
-    ammo: 6,
-    reserveAmmo: 36,
-
-    wanted: 0,
-
-    time: 0.25,
-
-    mounted: false,
-
-    mission: 0,
-
-    kills: 0,
-
-    targetKills: 0,
-
-    gameOver: false,
-
-    paused: false
-
-};
-
-
-/* =========================================================
-   INPUT
-========================================================= */
-
-const keys = {};
-
-let mouseDown = false;
-
-document.addEventListener(
-    "keydown",
-    e => {
-
-        keys[e.code] = true;
-
-        if (e.code === "KeyE")
-            mountHorse();
-
-        if (e.code === "KeyF")
-            interact();
-
-        if (e.code === "KeyR")
-            reload();
-
-        if (e.code === "Escape")
-            document.exitPointerLock();
-
-        if (
-            e.code === "Space" &&
-            !e.repeat
-        ) {
-            playerJump();
-        }
-
-    }
-);
-
-document.addEventListener(
-    "keyup",
-    e => {
-        keys[e.code] = false;
-    }
-);
-
-renderer.domElement.addEventListener(
-    "mousedown",
-    e => {
-
-        if (!game.started)
-            return;
-
-        if (e.button === 0) {
-
-            mouseDown = true;
-            shoot();
-
-        }
-
-        renderer.domElement.requestPointerLock();
-
-    }
-);
-
-document.addEventListener(
-    "mouseup",
-    e => {
-
-        if (e.button === 0)
-            mouseDown = false;
-
-    }
-);
-
-
-/* =========================================================
-   WORLD MATERIALS
-========================================================= */
-
-const mat = {
-
-    sand: new THREE.MeshStandardMaterial({
-        color: 0xb88751,
-        roughness: 1
-    }),
-
-    sand2: new THREE.MeshStandardMaterial({
-        color: 0x9c673d,
-        roughness: 1
-    }),
-
-    rock: new THREE.MeshStandardMaterial({
-        color: 0x685044,
-        roughness: 1
-    }),
-
-    wood: new THREE.MeshStandardMaterial({
-        color: 0x57351f,
-        roughness: 1
-    }),
-
-    darkWood: new THREE.MeshStandardMaterial({
-        color: 0x332018,
-        roughness: 1
-    }),
-
-    roof: new THREE.MeshStandardMaterial({
-        color: 0x3a2420,
-        roughness: 1
-    }),
-
-    skin: new THREE.MeshStandardMaterial({
-        color: 0xc88965
-    }),
-
-    shirt: new THREE.MeshStandardMaterial({
-        color: 0x6b4734
-    }),
-
-    pants: new THREE.MeshStandardMaterial({
-        color: 0x292b31
-    }),
-
-    horse: new THREE.MeshStandardMaterial({
-        color: 0x4d2c1c
-    }),
-
-    outlaw: new THREE.MeshStandardMaterial({
-        color: 0x252525
-    })
-
-};
-
-
-/* =========================================================
-   TERRAIN
-========================================================= */
-
-const terrainSize = 1000;
-
-const terrainGeo =
-    new THREE.PlaneGeometry(
-        terrainSize,
-        terrainSize,
+function createLights(){
+
+    const sun =
+        new THREE.DirectionalLight(
+            0xffdfaa,
+            2
+        );
+
+    sun.position.set(
         100,
-        100
+        150,
+        80
     );
 
-const terrainPos =
-    terrainGeo.attributes.position;
+    sun.castShadow = true;
 
-for (
-    let i = 0;
-    i < terrainPos.count;
-    i++
-) {
+    sun.shadow.mapSize.width = 2048;
+    sun.shadow.mapSize.height = 2048;
 
-    const x = terrainPos.getX(i);
-    const y = terrainPos.getY(i);
+    scene.add(sun);
 
-    let h =
-        Math.sin(x * 0.012) * 3 +
-        Math.cos(y * 0.014) * 4 +
-        Math.sin((x + y) * 0.02) * 2;
+    const ambient =
+        new THREE.HemisphereLight(
+            0x9cc9ff,
+            0x5b3b20,
+            1.2
+        );
 
-    const distance =
-        Math.sqrt(x*x + y*y);
-
-    if (distance < 130)
-        h *= distance / 130;
-
-    terrainPos.setZ(i, h);
-
+    scene.add(ambient);
 }
-
-terrainGeo.computeVertexNormals();
-
-const terrain =
-    new THREE.Mesh(
-        terrainGeo,
-        mat.sand
-    );
-
-terrain.rotation.x =
-    -Math.PI / 2;
-
-terrain.receiveShadow = true;
-
-scene.add(terrain);
-
 
 /* =========================================================
-   UTILITY
+   WORLD
 ========================================================= */
 
-function box(
-    w,
-    h,
-    d,
-    material,
-    x,
-    y,
-    z
-) {
+function createWorld(){
 
-    const mesh =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(w,h,d),
-            material
+    const groundGeometry =
+        new THREE.PlaneGeometry(
+            1000,
+            1000,
+            50,
+            50
         );
 
-    mesh.position.set(x,y,z);
+    const groundMaterial =
+        new THREE.MeshStandardMaterial({
+            color:0x9a7042,
+            roughness:1
+        });
 
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-
-    scene.add(mesh);
-
-    return mesh;
-}
-
-
-function cylinder(
-    r1,
-    r2,
-    h,
-    material,
-    x,
-    y,
-    z
-) {
-
-    const mesh =
+    const ground =
         new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                r1,r2,h,10
-            ),
-            material
+            groundGeometry,
+            groundMaterial
         );
 
-    mesh.position.set(x,y,z);
+    ground.rotation.x =
+        -Math.PI/2;
 
-    mesh.castShadow = true;
+    ground.receiveShadow = true;
 
-    scene.add(mesh);
+    scene.add(ground);
 
-    return mesh;
+    createMountains();
+
+    createRocks();
+
+    createCacti();
 }
-
 
 /* =========================================================
    MOUNTAINS
 ========================================================= */
 
-function createMountain(
-    x,
-    z,
-    scale
-) {
+function createMountains(){
 
-    const group =
-        new THREE.Group();
+    for(let i=0;i<25;i++){
 
-    const rock =
-        new THREE.Mesh(
+        const height =
+            30 + Math.random()*60;
+
+        const radius =
+            20 + Math.random()*30;
+
+        const geometry =
             new THREE.ConeGeometry(
-                25 * scale,
-                80 * scale,
+                radius,
+                height,
                 7
-            ),
-            mat.rock
-        );
-
-    rock.position.y =
-        40 * scale;
-
-    rock.rotation.y =
-        Math.random();
-
-    rock.castShadow = true;
-
-    group.add(rock);
-
-    group.position.set(
-        x,
-        -2,
-        z
-    );
-
-    scene.add(group);
-
-}
-
-for (
-    let i = 0;
-    i < 45;
-    i++
-) {
-
-    const angle =
-        Math.random() * Math.PI * 2;
-
-    const distance =
-        300 + Math.random() * 250;
-
-    createMountain(
-        Math.cos(angle) * distance,
-        Math.sin(angle) * distance,
-        0.7 + Math.random() * 1.5
-    );
-
-}
-
-
-/* =========================================================
-   CACTI
-========================================================= */
-
-function createCactus(x,z) {
-
-    const g =
-        new THREE.Group();
-
-    const trunk =
-        new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                .55,.7,5,8
-            ),
-            new THREE.MeshStandardMaterial({
-                color: 0x38613c
-            })
-        );
-
-    trunk.position.y = 2.5;
-    trunk.castShadow = true;
-
-    g.add(trunk);
-
-    for (
-        let i = 0;
-        i < 2;
-        i++
-    ) {
-
-        const arm =
-            new THREE.Mesh(
-                new THREE.CylinderGeometry(
-                    .35,.45,2.2,8
-                ),
-                trunk.material
             );
 
-        arm.position.set(
-            i === 0 ? 1 : -1,
-            2.6,
-            0
+        const material =
+            new THREE.MeshStandardMaterial({
+                color:0x5b4638,
+                roughness:1
+            });
+
+        const mountain =
+            new THREE.Mesh(
+                geometry,
+                material
+            );
+
+        const angle =
+            Math.random()*Math.PI*2;
+
+        const distance =
+            250 + Math.random()*180;
+
+        mountain.position.set(
+            Math.cos(angle)*distance,
+            height/2,
+            Math.sin(angle)*distance
         );
 
-        arm.rotation.z =
-            i === 0
-            ? -Math.PI / 2
-            : Math.PI / 2;
+        mountain.castShadow = true;
 
-        arm.castShadow = true;
-
-        g.add(arm);
-
+        scene.add(mountain);
     }
-
-    g.position.set(x,0,z);
-
-    scene.add(g);
-
 }
-
-for (
-    let i = 0;
-    i < 160;
-    i++
-) {
-
-    let x =
-        (Math.random()-.5) * 900;
-
-    let z =
-        (Math.random()-.5) * 900;
-
-    if (
-        Math.abs(x) < 120 &&
-        Math.abs(z) < 120
-    )
-        continue;
-
-    createCactus(x,z);
-
-}
-
 
 /* =========================================================
    ROCKS
 ========================================================= */
 
-for (
-    let i = 0;
-    i < 180;
-    i++
-) {
+function createRocks(){
 
-    let x =
-        (Math.random()-.5)*900;
+    for(let i=0;i<100;i++){
 
-    let z =
-        (Math.random()-.5)*900;
+        const geometry =
+            new THREE.DodecahedronGeometry(
+                .5+Math.random()*2
+            );
 
-    if (
-        Math.abs(x)<110 &&
-        Math.abs(z)<110
-    )
-        continue;
-
-    const s =
-        .5 + Math.random()*3;
-
-    const rock =
-        new THREE.Mesh(
-            new THREE.DodecahedronGeometry(s),
-            mat.rock
-        );
-
-    rock.position.set(
-        x,
-        s*.5,
-        z
-    );
-
-    rock.rotation.set(
-        Math.random(),
-        Math.random(),
-        Math.random()
-    );
-
-    rock.castShadow = true;
-
-    scene.add(rock);
-
-}
-
-
-/* =========================================================
-   BUILDING
-========================================================= */
-
-function createBuilding(
-    x,
-    z,
-    width,
-    depth,
-    height,
-    name,
-    roofColor = mat.roof
-) {
-
-    const group =
-        new THREE.Group();
-
-    const base =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                width,
-                height,
-                depth
-            ),
-            mat.wood
-        );
-
-    base.position.y =
-        height / 2;
-
-    base.castShadow = true;
-    base.receiveShadow = true;
-
-    group.add(base);
-
-    const roof =
-        new THREE.Mesh(
-            new THREE.ConeGeometry(
-                Math.max(width,depth)*.72,
-                2.8,
-                4
-            ),
-            roofColor
-        );
-
-    roof.rotation.y =
-        Math.PI / 4;
-
-    roof.position.y =
-        height + 1.3;
-
-    roof.scale.z = .7;
-
-    roof.castShadow = true;
-
-    group.add(roof);
-
-    const sign =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                width*.65,
-                1.2,
-                .18
-            ),
+        const material =
             new THREE.MeshStandardMaterial({
-                color: 0x241711
-            })
+                color:0x62513d
+            });
+
+        const rock =
+            new THREE.Mesh(
+                geometry,
+                material
+            );
+
+        rock.position.set(
+            (Math.random()-.5)*800,
+            .5,
+            (Math.random()-.5)*800
         );
 
-    sign.position.set(
-        0,
-        height*.72,
-        depth/2 + .12
-    );
+        rock.rotation.set(
+            Math.random(),
+            Math.random(),
+            Math.random()
+        );
 
-    group.add(sign);
+        rock.castShadow = true;
 
-    group.position.set(
-        x,
-        0,
-        z
-    );
-
-    scene.add(group);
-
-    return {
-        group,
-        name,
-        x,
-        z,
-        width,
-        depth
-    };
-
+        scene.add(rock);
+    }
 }
 
-
 /* =========================================================
-   TOWN
+   CACTI
 ========================================================= */
 
-const buildings = [];
+function createCacti(){
 
-buildings.push(
-    createBuilding(
-        -45, -25,
-        25, 18, 13,
-        "SALOON"
-    )
-);
+    for(let i=0;i<60;i++){
 
-buildings.push(
-    createBuilding(
-        45, -25,
-        25, 18, 13,
-        "SHERIFF"
-    )
-);
+        const cactus =
+            new THREE.Group();
 
-buildings.push(
-    createBuilding(
-        -45, 35,
-        24, 18, 12,
-        "GENERAL STORE"
-    )
-);
+        const material =
+            new THREE.MeshStandardMaterial({
+                color:0x3e6b36
+            });
 
-buildings.push(
-    createBuilding(
-        45, 35,
-        28, 20, 13,
-        "HOTEL"
-    )
-);
+        const trunk =
+            new THREE.Mesh(
+                new THREE.CylinderGeometry(
+                    .35,
+                    .45,
+                    3,
+                    8
+                ),
+                material
+            );
 
+        trunk.position.y=1.5;
 
-/* Stable */
+        cactus.add(trunk);
 
-const stable =
-    createBuilding(
-        0, 58,
-        30, 22, 9,
-        "STABLE"
-    );
+        if(Math.random()>.3){
 
+            const arm =
+                new THREE.Mesh(
+                    new THREE.CylinderGeometry(
+                        .25,
+                        .3,
+                        1.5,
+                        8
+                    ),
+                    material
+                );
 
-/* Town street */
+            arm.position.set(
+                .7,
+                1.8,
+                0
+            );
 
-box(
-    24,
-    .2,
-    180,
-    mat.sand2,
-    0,
-    .1,
-    0
-);
+            arm.rotation.z =
+                Math.PI/2;
 
-box(
-    180,
-    .2,
-    24,
-    mat.sand2,
-    0,
-    .12,
-    0
-);
+            cactus.add(arm);
+        }
 
+        cactus.position.set(
+            (Math.random()-.5)*500,
+            0,
+            (Math.random()-.5)*500
+        );
+
+        scene.add(cactus);
+    }
+}
 
 /* =========================================================
    PLAYER
 ========================================================= */
 
-const player =
-    new THREE.Group();
+function createPlayer(){
 
-scene.add(player);
-
-function makeCharacter(
-    material,
-    hat = true
-) {
-
-    const g =
+    player =
         new THREE.Group();
 
     const body =
         new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                .55,.7,1.7,10
+            new THREE.BoxGeometry(
+                1,
+                1.8,
+                .7
             ),
-            material
+            new THREE.MeshStandardMaterial({
+                color:0x3c2415
+            })
         );
 
-    body.position.y = 1.2;
+    body.position.y=1;
 
-    body.castShadow = true;
+    body.castShadow=true;
 
-    g.add(body);
+    player.add(body);
 
     const head =
         new THREE.Mesh(
             new THREE.SphereGeometry(
-                .48,12,12
+                .45,
+                16,
+                16
             ),
-            mat.skin
+            new THREE.MeshStandardMaterial({
+                color:0xc58b61
+            })
         );
 
-    head.position.y = 2.45;
+    head.position.y=2.2;
 
-    head.castShadow = true;
+    head.castShadow=true;
 
-    g.add(head);
+    player.add(head);
 
-    if (hat) {
-
-        const brim =
-            new THREE.Mesh(
-                new THREE.CylinderGeometry(
-                    .85,.85,.12,16
-                ),
-                mat.darkWood
-            );
-
-        brim.position.y =
-            2.85;
-
-        brim.castShadow = true;
-
-        g.add(brim);
-
-        const crown =
-            new THREE.Mesh(
-                new THREE.CylinderGeometry(
-                    .48,.55,.6,12
-                ),
-                mat.darkWood
-            );
-
-        crown.position.y =
-            3.15;
-
-        crown.castShadow = true;
-
-        g.add(crown);
-
-    }
-
-    return g;
-
-}
-
-const playerModel =
-    makeCharacter(
-        mat.shirt,
-        true
+    player.position.set(
+        0,
+        0,
+        110
     );
 
-player.add(playerModel);
-
-player.position.set(
-    0,
-    0,
-    110
-);
-
+    scene.add(player);
+}
 
 /* =========================================================
    HORSE
 ========================================================= */
 
-const horse =
-    new THREE.Group();
+function createHorse(){
 
-const horseBody =
-    new THREE.Mesh(
-        new THREE.BoxGeometry(
-            1.5,1.35,3.1
-        ),
-        mat.horse
-    );
+    horse =
+        new THREE.Group();
 
-horseBody.position.y =
-    1.5;
+    const brown =
+        new THREE.MeshStandardMaterial({
+            color:0x4a2817
+        });
 
-horseBody.castShadow = true;
-
-horse.add(horseBody);
-
-const horseNeck =
-    new THREE.Mesh(
-        new THREE.BoxGeometry(
-            .9,2.2,.9
-        ),
-        mat.horse
-    );
-
-horseNeck.position.set(
-    0,
-    2.3,
-    -1.25
-);
-
-horseNeck.rotation.x =
-    -.25;
-
-horseNeck.castShadow = true;
-
-horse.add(horseNeck);
-
-const horseHead =
-    new THREE.Mesh(
-        new THREE.BoxGeometry(
-            .75,1,1.2
-        ),
-        mat.horse
-    );
-
-horseHead.position.set(
-    0,
-    3.25,
-    -1.55
-);
-
-horseHead.castShadow = true;
-
-horse.add(horseHead);
-
-
-/* Horse legs */
-
-const horseLegs = [];
-
-for (
-    let i=0;
-    i<4;
-    i++
-) {
-
-    const leg =
+    const body =
         new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                .18,.22,1.5,8
+            new THREE.BoxGeometry(
+                2,
+                1.4,
+                4
             ),
-            mat.horse
+            brown
         );
 
-    leg.position.set(
-        i%2 ? -.5 : .5,
-        .65,
-        i<2 ? -.95 : .95
-    );
+    body.position.y=1.5;
 
-    leg.castShadow = true;
+    body.castShadow=true;
 
-    horse.add(leg);
+    horse.add(body);
 
-    horseLegs.push(leg);
-
-}
-
-horse.position.set(
-    8,
-    0,
-    95
-);
-
-scene.add(horse);
-
-
-/* =========================================================
-   NPC SYSTEM
-========================================================= */
-
-const npcs = [];
-
-function createNPC(
-    x,
-    z
-) {
-
-    const npc =
-        makeCharacter(
-            new THREE.MeshStandardMaterial({
-                color:
-                    new THREE.Color(
-                        Math.random(),
-                        Math.random()*.6,
-                        Math.random()*.4
-                    )
-            }),
-            true
+    const neck =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                1,
+                2,
+                1
+            ),
+            brown
         );
 
-    npc.position.set(
-        x,
+    neck.position.set(
         0,
-        z
+        2.5,
+        -1.4
     );
 
-    scene.add(npc);
+    neck.rotation.x=-.25;
 
-    npcs.push({
-        object: npc,
-        target: null,
-        timer: Math.random()*5,
-        speed: .7 + Math.random()
-    });
+    horse.add(neck);
 
-}
-
-for (
-    let i=0;
-    i<20;
-    i++
-) {
-
-    createNPC(
-        (Math.random()-.5)*130,
-        (Math.random()-.5)*130
-    );
-
-}
-
-
-/* =========================================================
-   OUTLAW SYSTEM
-========================================================= */
-
-const outlaws = [];
-
-function createOutlaw(
-    x,
-    z
-) {
-
-    const model =
-        makeCharacter(
-            mat.outlaw,
-            true
+    const head =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                .9,
+                .8,
+                1.2
+            ),
+            brown
         );
 
-    model.position.set(
-        x,
+    head.position.set(
         0,
-        z
+        3.3,
+        -1.9
     );
 
-    scene.add(model);
+    horse.add(head);
 
-    const outlaw = {
-
-        object: model,
-
-        health: 100,
-
-        speed:
-            1.3 +
-            Math.random()*.7,
-
-        attackTimer:
-            Math.random()*2,
-
-        alive: true,
-
-        wander: Math.random()*Math.PI*2
-
-    };
-
-    outlaws.push(outlaw);
-
-    return outlaw;
-
-}
-
-
-/* Spawn initial enemies */
-
-for (
-    let i=0;
-    i<10;
-    i++
-) {
-
-    const angle =
-        Math.random()*Math.PI*2;
-
-    const distance =
-        80 + Math.random()*160;
-
-    createOutlaw(
-        Math.cos(angle)*distance,
-        Math.sin(angle)*distance
+    horse.position.set(
+        4,
+        0,
+        105
     );
 
+    scene.add(horse);
 }
-
 
 /* =========================================================
-   BULLETS
+   TOWN
 ========================================================= */
 
-const bullets = [];
+function createTown(){
 
-function shoot() {
+    for(let x=-30;x<=30;x+=15){
 
-    if (
-        !game.started ||
-        game.gameOver
-    )
-        return;
+        createBuilding(
+            x,
+            -10
+        );
 
-    if (game.ammo <= 0) {
-
-        reload();
-        return;
-
+        createBuilding(
+            x,
+            20
+        );
     }
 
-    game.ammo--;
-
-    game.wanted =
-        Math.min(
-            5,
-            game.wanted + .08
-        );
-
-    updateHUD();
-
-    const start =
-        player.position.clone();
-
-    start.y += 2.0;
-
-    const direction =
-        new THREE.Vector3();
-
-    camera.getWorldDirection(
-        direction
-    );
-
-    const bullet =
+    const road =
         new THREE.Mesh(
-            new THREE.SphereGeometry(
-                .07,6,6
+            new THREE.PlaneGeometry(
+                100,
+                15
             ),
-            new THREE.MeshBasicMaterial({
-                color: 0xffd27d
+            new THREE.MeshStandardMaterial({
+                color:0x69462c
             })
         );
 
-    bullet.position.copy(start);
+    road.rotation.x=-Math.PI/2;
 
-    scene.add(bullet);
+    road.position.set(
+        0,
+        .02,
+        5
+    );
 
-    bullets.push({
+    scene.add(road);
+}
 
-        object: bullet,
+function createBuilding(x,z){
 
-        velocity:
-            direction.multiplyScalar(
-                180
+    const building =
+        new THREE.Group();
+
+    const body =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                12,
+                8,
+                10
             ),
+            new THREE.MeshStandardMaterial({
+                color:0x8b5d3b
+            })
+        );
 
-        life: 2
+    body.position.y=4;
 
-    });
+    body.castShadow=true;
 
-}
+    building.add(body);
 
+    const roof =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                13,
+                1,
+                11
+            ),
+            new THREE.MeshStandardMaterial({
+                color:0x38251b
+            })
+        );
 
-/* =========================================================
-   RELOAD
-========================================================= */
+    roof.position.y=8.5;
 
-let reloadTimer = 0;
+    building.add(roof);
 
-function reload() {
-
-    if (
-        game.ammo >= 6 ||
-        game.reserveAmmo <= 0 ||
-        reloadTimer > 0
-    )
-        return;
-
-    reloadTimer = 1.5;
-
-    showMessage(
-        "Reloading..."
+    building.position.set(
+        x,
+        0,
+        z
     );
 
+    scene.add(building);
 }
 
-
 /* =========================================================
-   DAMAGE
+   NPCS
 ========================================================= */
 
-function damagePlayer(
-    amount
-) {
+function createNPCs(){
 
-    if (game.gameOver)
-        return;
+    for(let i=0;i<8;i++){
 
-    game.health -= amount;
+        const npc =
+            createPerson(
+                0x35516b
+            );
 
-    if (game.health <= 0) {
+        npc.position.set(
+            (Math.random()-.5)*60,
+            0,
+            (Math.random()-.5)*40
+        );
 
-        game.health = 0;
+        npc.userData.speed =
+            .5+Math.random();
 
-        die();
+        npcs.push(npc);
 
+        scene.add(npc);
     }
-
 }
 
+function createPerson(color){
+
+    const person =
+        new THREE.Group();
+
+    const body =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                .8,
+                1.5,
+                .5
+            ),
+            new THREE.MeshStandardMaterial({
+                color:color
+            })
+        );
+
+    body.position.y=.9;
+
+    person.add(body);
+
+    const head =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                .35,
+                12,
+                12
+            ),
+            new THREE.MeshStandardMaterial({
+                color:0xb87952
+            })
+        );
+
+    head.position.y=1.9;
+
+    person.add(head);
+
+    return person;
+}
 
 /* =========================================================
-   DEATH
+   ENEMIES
 ========================================================= */
 
-function die() {
+function createEnemies(){
 
-    game.gameOver = true;
+    for(let i=0;i<5;i++){
 
-    showMessage(
-        "You died. Press ENTER to respawn."
-    );
-
-    const handler = e => {
-
-        if (
-            e.code === "Enter"
-        ) {
-
-            document.removeEventListener(
-                "keydown",
-                handler
+        const enemy =
+            createPerson(
+                0x571c1c
             );
 
-            game.health = 100;
-            game.stamina = 100;
-            game.gameOver = false;
+        enemy.position.set(
+            40 + Math.random()*40,
+            0,
+            -20 + Math.random()*40
+        );
 
-            player.position.set(
-                0,
-                0,
-                110
-            );
+        enemy.userData.health=100;
+        enemy.userData.cooldown=0;
 
-            game.wanted = 0;
+        enemies.push(enemy);
 
-            showMessage(
-                "Back to the frontier."
-            );
+        scene.add(enemy);
+    }
+}
 
-        }
+/* =========================================================
+   INPUT
+========================================================= */
 
-    };
+function setupInput(){
 
     document.addEventListener(
         "keydown",
-        handler
+        function(e){
+
+            keys[e.code]=true;
+
+            /* ENTER STARTS GAME */
+
+            if(e.code==="Enter"){
+
+                if(!gameStarted){
+
+                    startGame();
+
+                    return;
+                }
+
+                if(game.dead){
+
+                    respawnPlayer();
+
+                    return;
+                }
+            }
+
+            if(e.code==="Escape"){
+
+                if(gameStarted){
+
+                    paused=!paused;
+
+                    showMessage(
+                        paused ?
+                        "Game paused" :
+                        "Game resumed"
+                    );
+                }
+            }
+
+            if(e.code==="KeyR"){
+
+                reload();
+            }
+
+            if(e.code==="KeyE"){
+
+                mountHorse();
+            }
+
+            if(e.code==="KeyQ"){
+
+                if(game.deadEye>10){
+
+                    game.deadEye-=10;
+
+                    showMessage(
+                        "DEAD EYE"
+                    );
+                }
+            }
+
+            if(e.code==="Space"){
+
+                jump();
+            }
+        }
     );
 
-}
+    document.addEventListener(
+        "keyup",
+        function(e){
 
-
-/* =========================================================
-   HORSE MOUNT
-========================================================= */
-
-function mountHorse() {
-
-    const distance =
-        player.position.distanceTo(
-            horse.position
-        );
-
-    if (
-        !game.mounted &&
-        distance < 5
-    ) {
-
-        game.mounted = true;
-
-        playerModel.visible = false;
-
-        player.position.copy(
-            horse.position
-        );
-
-        showMessage(
-            "Mounted horse."
-        );
-
-        return;
-
-    }
-
-    if (game.mounted) {
-
-        game.mounted = false;
-
-        playerModel.visible = true;
-
-        player.position.copy(
-            horse.position
-        );
-
-        player.position.x += 2;
-
-        showMessage(
-            "Dismounted."
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   INTERACTION
-========================================================= */
-
-function interact() {
-
-    let closest = null;
-    let distance = Infinity;
-
-    for (
-        const npc of npcs
-    ) {
-
-        const d =
-            player.position.distanceTo(
-                npc.object.position
-            );
-
-        if (
-            d < distance
-        ) {
-
-            distance = d;
-            closest = npc;
-
+            keys[e.code]=false;
         }
+    );
 
-    }
+    document.addEventListener(
+        "mousemove",
+        function(e){
 
-    if (
-        closest &&
-        distance < 5
-    ) {
+            if(
+                document.pointerLockElement ===
+                renderer.domElement
+            ){
 
-        startMission();
+                cameraYaw -= e.movementX*.002;
 
-    }
+                cameraPitch -= e.movementY*.002;
 
+                cameraPitch =
+                    Math.max(
+                        -.7,
+                        Math.min(
+                            .7,
+                            cameraPitch
+                        )
+                    );
+            }
+        }
+    );
+
+    document.addEventListener(
+        "mousedown",
+        function(e){
+
+            if(
+                gameStarted &&
+                !game.dead &&
+                !paused &&
+                e.button===0
+            ){
+
+                shoot();
+            }
+        }
+    );
+
+    document.getElementById(
+        "play"
+    ).addEventListener(
+        "click",
+        startGame
+    );
 }
 
-
 /* =========================================================
-   MISSIONS
+   START GAME
 ========================================================= */
 
-const missions = [
+function startGame(){
 
-    {
-        title:
-            "A BOUNTY IN THE DUST",
+    if(gameStarted) return;
 
-        text:
-            "Find and eliminate 3 outlaws.",
+    gameStarted=true;
 
-        kills: 3,
+    document.getElementById(
+        "start"
+    ).style.display="none";
 
-        reward: 100
-    },
+    if(renderer.domElement.requestPointerLock){
 
-    {
-        title:
-            "THE TRAIN ROBBERS",
-
-        text:
-            "Eliminate 5 wanted criminals.",
-
-        kills: 5,
-
-        reward: 180
-    },
-
-    {
-        title:
-            "LAST STAND",
-
-        text:
-            "Take down 8 outlaws.",
-
-        kills: 8,
-
-        reward: 300
+        renderer.domElement.requestPointerLock();
     }
-
-];
-
-let currentMissionKills = 0;
-
-function startMission() {
-
-    if (
-        game.mission >=
-        missions.length
-    ) {
-
-        showMessage(
-            "The frontier is yours."
-        );
-
-        return;
-
-    }
-
-    currentMissionKills = 0;
-
-    const mission =
-        missions[game.mission];
-
-    game.targetKills =
-        mission.kills;
 
     showMessage(
-        mission.title +
-        ": " +
-        mission.text
+        "Welcome to the frontier."
     );
-
-    /* Spawn mission enemies */
-
-    for (
-        let i=0;
-        i<mission.kills+2;
-        i++
-    ) {
-
-        const angle =
-            Math.random()*Math.PI*2;
-
-        const d =
-            90 +
-            Math.random()*100;
-
-        createOutlaw(
-            player.position.x +
-            Math.cos(angle)*d,
-
-            player.position.z +
-            Math.sin(angle)*d
-        );
-
-    }
-
 }
-
-
-/* =========================================================
-   MISSION UPDATE
-========================================================= */
-
-function enemyKilled() {
-
-    game.kills++;
-
-    currentMissionKills++;
-
-    game.money += 5;
-
-    if (
-        game.mission <
-        missions.length
-    ) {
-
-        const mission =
-            missions[game.mission];
-
-        if (
-            currentMissionKills >=
-            mission.kills
-        ) {
-
-            game.money +=
-                mission.reward;
-
-            showMessage(
-                "BOUNTY COMPLETE! +$" +
-                mission.reward
-            );
-
-            game.mission++;
-
-            currentMissionKills = 0;
-
-        }
-
-    }
-
-}
-
-
-/* =========================================================
-   BULLET COLLISION
-========================================================= */
-
-function updateBullets(
-    dt
-) {
-
-    for (
-        let i=bullets.length-1;
-        i>=0;
-        i--
-    ) {
-
-        const b =
-            bullets[i];
-
-        b.object.position.add(
-            b.velocity.clone().multiplyScalar(dt)
-        );
-
-        b.life -= dt;
-
-        let remove = false;
-
-        for (
-            const enemy of outlaws
-        ) {
-
-            if (
-                !enemy.alive
-            )
-                continue;
-
-            const d =
-                b.object.position.distanceTo(
-                    enemy.object.position
-                );
-
-            if (
-                d < 2.0
-            ) {
-
-                enemy.health -= 50;
-
-                remove = true;
-
-                if (
-                    enemy.health <= 0
-                ) {
-
-                    killOutlaw(
-                        enemy
-                    );
-
-                }
-
-                break;
-
-            }
-
-        }
-
-        if (
-            b.life <= 0
-        )
-            remove = true;
-
-        if (remove) {
-
-            scene.remove(
-                b.object
-            );
-
-            bullets.splice(
-                i,
-                1
-            );
-
-        }
-
-    }
-
-}
-
-
-/* =========================================================
-   KILL OUTLAW
-========================================================= */
-
-function killOutlaw(
-    enemy
-) {
-
-    enemy.alive = false;
-
-    scene.remove(
-        enemy.object
-    );
-
-    game.wanted =
-        Math.min(
-            5,
-            game.wanted + .4
-        );
-
-    enemyKilled();
-
-}
-
-
-/* =========================================================
-   OUTLAW AI
-========================================================= */
-
-function updateOutlaws(
-    dt
-) {
-
-    for (
-        const enemy of outlaws
-    ) {
-
-        if (
-            !enemy.alive
-        )
-            continue;
-
-        const pos =
-            enemy.object.position;
-
-        const distance =
-            pos.distanceTo(
-                player.position
-            );
-
-        if (
-            distance < 80
-        ) {
-
-            const direction =
-                player.position
-                .clone()
-                .sub(pos);
-
-            direction.y = 0;
-
-            if (
-                direction.length() > 12
-            ) {
-
-                direction.normalize();
-
-                pos.add(
-                    direction.multiplyScalar(
-                        enemy.speed * dt
-                    )
-                );
-
-                enemy.object.lookAt(
-                    player.position.x,
-                    pos.y,
-                    player.position.z
-                );
-
-            }
-
-            enemy.attackTimer -= dt;
-
-            if (
-                enemy.attackTimer <= 0 &&
-                distance < 55
-            ) {
-
-                enemy.attackTimer =
-                    2 +
-                    Math.random()*2;
-
-                if (
-                    Math.random() < .65
-                ) {
-
-                    damagePlayer(
-                        4 +
-                        Math.random()*5
-                    );
-
-                }
-
-            }
-
-        }
-        else {
-
-            enemy.wander +=
-                (Math.random()-.5)*dt;
-
-            pos.x +=
-                Math.cos(enemy.wander)
-                * enemy.speed
-                * .25
-                * dt;
-
-            pos.z +=
-                Math.sin(enemy.wander)
-                * enemy.speed
-                * .25
-                * dt;
-
-        }
-
-    }
-
-}
-
-
-/* =========================================================
-   NPC AI
-========================================================= */
-
-function updateNPCs(
-    dt
-) {
-
-    for (
-        const npc of npcs
-    ) {
-
-        npc.timer -= dt;
-
-        if (
-            npc.timer <= 0
-        ) {
-
-            npc.timer =
-                2 +
-                Math.random()*4;
-
-            npc.target =
-                new THREE.Vector3(
-                    (Math.random()-.5)*100,
-                    0,
-                    (Math.random()-.5)*100
-                );
-
-        }
-
-        if (
-            npc.target
-        ) {
-
-            const direction =
-                npc.target.clone()
-                .sub(
-                    npc.object.position
-                );
-
-            direction.y = 0;
-
-            if (
-                direction.length() > 2
-            ) {
-
-                direction.normalize();
-
-                npc.object.position.add(
-                    direction.multiplyScalar(
-                        npc.speed * dt
-                    )
-                );
-
-                npc.object.lookAt(
-                    npc.target.x,
-                    npc.object.position.y,
-                    npc.target.z
-                );
-
-            }
-
-        }
-
-    }
-
-}
-
 
 /* =========================================================
    PLAYER MOVEMENT
 ========================================================= */
 
-let verticalVelocity = 0;
+function updatePlayer(dt){
 
-function playerJump() {
+    if(game.dead) return;
 
-    if (
-        Math.abs(
-            verticalVelocity
-        ) < .01
-    ) {
+    let speed=10;
 
-        verticalVelocity = 8;
+    if(keys["ShiftLeft"] ||
+       keys["ShiftRight"]){
 
-    }
-
-}
-
-
-function updatePlayer(
-    dt
-) {
-
-    if (
-        game.gameOver
-    )
-        return;
-
-    let forward = 0;
-    let side = 0;
-
-    if (keys["KeyW"])
-        forward += 1;
-
-    if (keys["KeyS"])
-        forward -= 1;
-
-    if (keys["KeyD"])
-        side += 1;
-
-    if (keys["KeyA"])
-        side -= 1;
-
-    const moving =
-        forward !== 0 ||
-        side !== 0;
-
-    let speed =
-        game.mounted
-        ? 16
-        : 7;
-
-    const sprint =
-        keys["ShiftLeft"] ||
-        keys["ShiftRight"];
-
-    if (
-        sprint &&
-        moving &&
-        game.stamina > 0
-    ) {
-
-        speed *=
-            game.mounted
-            ? 1.7
-            : 1.45;
+        speed=18;
 
         game.stamina -=
-            (game.mounted ? 8 : 15)
-            * dt;
+            20*dt;
 
-    }
-    else {
+    }else{
 
         game.stamina +=
-            12 * dt;
-
+            10*dt;
     }
 
     game.stamina =
@@ -2158,272 +1113,517 @@ function updatePlayer(
             100
         );
 
-    const direction =
+    const forward =
         new THREE.Vector3(
-            side,
+            Math.sin(cameraYaw),
             0,
-            -forward
+            Math.cos(cameraYaw)
         );
 
-    if (
-        direction.length() > 0
-    ) {
+    const right =
+        new THREE.Vector3(
+            Math.cos(cameraYaw),
+            0,
+            -Math.sin(cameraYaw)
+        );
 
-        direction.normalize();
+    if(keys["KeyW"]){
 
-        const angle =
-            camera.rotation.y;
-
-        const sin =
-            Math.sin(angle);
-
-        const cos =
-            Math.cos(angle);
-
-        const dx =
-            direction.x*cos -
-            direction.z*sin;
-
-        const dz =
-            direction.x*sin +
-            direction.z*cos;
-
-        player.position.x +=
-            dx * speed * dt;
-
-        player.position.z +=
-            dz * speed * dt;
-
-        player.rotation.y =
-            Math.atan2(dx,dz);
-
-        if (
-            game.mounted
-        ) {
-
-            horse.position.copy(
-                player.position
-            );
-
-            horse.rotation.y =
-                player.rotation.y;
-
-            playerModel.visible =
-                false;
-
-        }
-
+        player.position.addScaledVector(
+            forward,
+            speed*dt
+        );
     }
 
-    verticalVelocity -=
-        22 * dt;
+    if(keys["KeyS"]){
 
-    player.position.y +=
-        verticalVelocity * dt;
-
-    if (
-        player.position.y < 0
-    ) {
-
-        player.position.y = 0;
-
-        verticalVelocity = 0;
-
+        player.position.addScaledVector(
+            forward,
+            -speed*dt
+        );
     }
 
-    /* World boundaries */
+    if(keys["KeyA"]){
 
-    player.position.x =
-        THREE.MathUtils.clamp(
-            player.position.x,
-            -480,
-            480
+        player.position.addScaledVector(
+            right,
+            speed*dt
         );
+    }
 
-    player.position.z =
-        THREE.MathUtils.clamp(
-            player.position.z,
-            -480,
-            480
+    if(keys["KeyD"]){
+
+        player.position.addScaledVector(
+            right,
+            -speed*dt
         );
+    }
 
+    player.position.y=0;
 }
-
 
 /* =========================================================
    CAMERA
 ========================================================= */
 
-let cameraYaw = 0;
-let cameraPitch = .15;
+function updateCamera(){
 
-document.addEventListener(
-    "mousemove",
-    e => {
+    const distance=10;
 
-        if (
-            document.pointerLockElement !==
-            renderer.domElement
-        )
-            return;
+    const height=5;
 
-        cameraYaw -=
-            e.movementX * .0025;
+    camera.position.x =
+        player.position.x -
+        Math.sin(cameraYaw)*distance;
 
-        cameraPitch -=
-            e.movementY * .0025;
+    camera.position.z =
+        player.position.z -
+        Math.cos(cameraYaw)*distance;
 
-        cameraPitch =
-            THREE.MathUtils.clamp(
-                cameraPitch,
-                -.5,
-                .65
-            );
-
-    }
-);
-
-
-function updateCamera(
-    dt
-) {
+    camera.position.y =
+        player.position.y +
+        height -
+        cameraPitch*4;
 
     const target =
         player.position.clone();
 
-    target.y +=
-        game.mounted
-        ? 3.2
-        : 2.2;
+    target.y+=1.5;
 
-    const distance =
-        game.mounted
-        ? 9
-        : 7;
-
-    const horizontal =
-        Math.cos(cameraPitch) *
-        distance;
-
-    const desired =
-        new THREE.Vector3(
-            target.x +
-            Math.sin(cameraYaw) *
-            horizontal,
-
-            target.y +
-            Math.sin(cameraPitch) *
-            distance,
-
-            target.z +
-            Math.cos(cameraYaw) *
-            horizontal
-        );
-
-    camera.position.lerp(
-        desired,
-        1 -
-        Math.pow(.001,dt)
-    );
-
-    camera.lookAt(
-        target
-    );
-
+    camera.lookAt(target);
 }
 
-
 /* =========================================================
-   HORSE ANIMATION
+   HORSE
 ========================================================= */
 
-let horseTime = 0;
+function mountHorse(){
 
-function updateHorse(
-    dt
-) {
+    if(
+        player.position.distanceTo(
+            horse.position
+        )<6
+    ){
 
-    horseTime += dt;
+        player.position.copy(
+            horse.position
+        );
 
-    if (
-        game.mounted &&
-        (
-            keys["KeyW"] ||
-            keys["KeyS"] ||
-            keys["KeyA"] ||
-            keys["KeyD"]
-        )
-    ) {
+        showMessage(
+            "You mounted your horse."
+        );
 
-        for (
-            let i=0;
-            i<horseLegs.length;
-            i++
-        ) {
+    }else{
 
-            horseLegs[i].rotation.z =
+        showMessage(
+            "Your horse is too far away."
+        );
+    }
+}
+
+/* =========================================================
+   JUMP
+========================================================= */
+
+function jump(){
+
+    if(player.position.y===0){
+
+        player.position.y=.2;
+
+        setTimeout(
+            function(){
+
+                player.position.y=0;
+
+            },
+            250
+        );
+    }
+}
+
+/* =========================================================
+   SHOOTING
+========================================================= */
+
+function shoot(){
+
+    if(reloading) return;
+
+    if(ammo<=0){
+
+        showMessage(
+            "Out of ammo. Press R."
+        );
+
+        return;
+    }
+
+    ammo--;
+
+    updateHUD();
+
+    const bullet =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                .08,
+                8,
+                8
+            ),
+            new THREE.MeshBasicMaterial({
+                color:0xffd37a
+            })
+        );
+
+    bullet.position.copy(
+        camera.position
+    );
+
+    const direction =
+        new THREE.Vector3();
+
+    camera.getWorldDirection(
+        direction
+    );
+
+    bullet.userData.velocity =
+        direction.multiplyScalar(80);
+
+    bullet.userData.life=2;
+
+    bullets.push(bullet);
+
+    scene.add(bullet);
+}
+
+/* =========================================================
+   BULLETS
+========================================================= */
+
+function updateBullets(dt){
+
+    for(
+        let i=bullets.length-1;
+        i>=0;
+        i--
+    ){
+
+        const bullet=bullets[i];
+
+        bullet.position.addScaledVector(
+            bullet.userData.velocity,
+            dt
+        );
+
+        bullet.userData.life-=dt;
+
+        for(
+            let j=0;
+            j<enemies.length;
+            j++
+        ){
+
+            const enemy=enemies[j];
+
+            if(
+                bullet.position.distanceTo(
+                    enemy.position
+                )<2
+            ){
+
+                enemy.userData.health-=50;
+
+                scene.remove(bullet);
+
+                bullets.splice(i,1);
+
+                game.wanted=
+                    Math.min(
+                        5,
+                        game.wanted+1
+                    );
+
+                if(
+                    enemy.userData.health<=0
+                ){
+
+                    scene.remove(enemy);
+
+                    enemies.splice(j,1);
+
+                    showMessage(
+                        "Enemy down."
+                    );
+                }
+
+                break;
+            }
+        }
+
+        if(
+            bullet.userData.life<=0
+        ){
+
+            scene.remove(bullet);
+
+            bullets.splice(i,1);
+        }
+    }
+}
+
+/* =========================================================
+   RELOAD
+========================================================= */
+
+function reload(){
+
+    if(reloading) return;
+
+    if(ammo>=6) return;
+
+    if(reserveAmmo<=0){
+
+        showMessage(
+            "No reserve ammunition."
+        );
+
+        return;
+    }
+
+    reloading=true;
+
+    reloadTimer=1.5;
+
+    showMessage(
+        "Reloading..."
+    );
+}
+
+function updateReload(dt){
+
+    if(!reloading) return;
+
+    reloadTimer-=dt;
+
+    if(reloadTimer<=0){
+
+        const needed =
+            6-ammo;
+
+        const amount =
+            Math.min(
+                needed,
+                reserveAmmo
+            );
+
+        ammo+=amount;
+
+        reserveAmmo-=amount;
+
+        reloading=false;
+
+        showMessage(
+            "Reloaded."
+        );
+
+        updateHUD();
+    }
+}
+
+/* =========================================================
+   ENEMY AI
+========================================================= */
+
+function updateEnemies(dt){
+
+    for(
+        const enemy of enemies
+    ){
+
+        const distance =
+            enemy.position.distanceTo(
+                player.position
+            );
+
+        if(distance<50){
+
+            enemy.lookAt(
+                player.position.x,
+                enemy.position.y,
+                player.position.z
+            );
+
+            if(distance>10){
+
+                const direction =
+                    player.position.clone()
+                    .sub(enemy.position)
+                    .normalize();
+
+                enemy.position.addScaledVector(
+                    direction,
+                    dt*2
+                );
+            }
+
+            enemy.userData.cooldown-=dt;
+
+            if(
+                distance<30 &&
+                enemy.userData.cooldown<=0
+            ){
+
+                enemy.userData.cooldown=2;
+
+                game.health-=10;
+
+                showMessage(
+                    "You were shot!"
+                );
+
+                if(game.health<=0){
+
+                    die();
+                }
+            }
+        }
+    }
+}
+
+/* =========================================================
+   NPC AI
+========================================================= */
+
+function updateNPCs(dt){
+
+    for(
+        const npc of npcs
+    ){
+
+        npc.rotation.y +=
+            Math.sin(
+                performance.now()*.001
+            )*.001;
+
+        if(
+            Math.random()<.002
+        ){
+
+            npc.userData.direction =
+                Math.random()*Math.PI*2;
+        }
+
+        if(
+            npc.userData.direction!==undefined
+        ){
+
+            npc.position.x +=
                 Math.sin(
-                    horseTime * 12 +
-                    i
-                ) * .5;
+                    npc.userData.direction
+                ) *
+                npc.userData.speed *
+                dt;
 
+            npc.position.z +=
+                Math.cos(
+                    npc.userData.direction
+                ) *
+                npc.userData.speed *
+                dt;
         }
-
     }
-    else {
-
-        for (
-            const leg of horseLegs
-        ) {
-
-            leg.rotation.z = 0;
-
-        }
-
-    }
-
 }
 
-
 /* =========================================================
-   DAY / NIGHT
+   DEATH / RESPAWN
 ========================================================= */
 
-function updateTime(
-    dt
-) {
+function die(){
 
-    game.time +=
-        dt / 180;
+    if(game.dead) return;
 
-    if (
-        game.time > 1
-    )
-        game.time -= 1;
+    game.dead=true;
 
-    const angle =
-        game.time * Math.PI * 2;
+    showMessage(
+        "You died. Press ENTER to respawn."
+    );
+}
 
-    sun.position.set(
-        Math.cos(angle)*250,
-        Math.sin(angle)*250,
-        120
+function respawnPlayer(){
+
+    game.health=100;
+
+    game.stamina=100;
+
+    game.deadEye=100;
+
+    game.wanted=0;
+
+    game.dead=false;
+
+    player.position.set(
+        0,
+        0,
+        110
     );
 
-    const daylight =
-        THREE.MathUtils.clamp(
-            Math.sin(angle)*.5+.5,
-            .08,
-            1
+    showMessage(
+        "You returned to the frontier."
+    );
+}
+
+/* =========================================================
+   STATS
+========================================================= */
+
+function updateStats(dt){
+
+    game.deadEye +=
+        5*dt;
+
+    game.deadEye =
+        Math.min(
+            100,
+            game.deadEye
         );
 
-    sun.intensity =
-        .35 +
-        daylight*2.6;
+    game.health =
+        Math.min(
+            100,
+            game.health
+        );
+}
 
-    ambient.intensity =
-        .4 +
-        daylight*1.4;
+/* =========================================================
+   WANTED
+========================================================= */
+
+function updateWanted(dt){
+
+    if(game.wanted>0){
+
+        game.wanted -=
+            .08*dt;
+
+        game.wanted =
+            Math.max(
+                0,
+                game.wanted
+            );
+    }
+}
+
+/* =========================================================
+   TIME
+========================================================= */
+
+function updateTime(dt){
+
+    timeOfDay +=
+        dt*.002;
+
+    const cycle =
+        Math.sin(timeOfDay);
 
     const sky =
         new THREE.Color();
@@ -2431,478 +1631,142 @@ function updateTime(
     sky.setHSL(
         .58,
         .45,
-        .35 + daylight*.25
+        .55 + cycle*.1
     );
 
-    scene.background.copy(
-        sky
-    );
+    scene.background=sky;
 
     scene.fog.color.copy(
         sky
     );
-
 }
-
-
-/* =========================================================
-   WANTED SYSTEM
-========================================================= */
-
-function updateWanted(
-    dt
-) {
-
-    if (
-        game.wanted > 0
-    ) {
-
-        let nearbyEnemy = false;
-
-        for (
-            const enemy of outlaws
-        ) {
-
-            if (
-                enemy.alive &&
-                enemy.object.position
-                    .distanceTo(
-                        player.position
-                    ) < 70
-            ) {
-
-                nearbyEnemy = true;
-                break;
-
-            }
-
-        }
-
-        if (
-            !nearbyEnemy
-        ) {
-
-            game.wanted -=
-                dt * .025;
-
-        }
-
-    }
-
-    game.wanted =
-        Math.max(
-            0,
-            game.wanted
-        );
-
-}
-
-
-/* =========================================================
-   HUD
-========================================================= */
-
-function updateHUD() {
-
-    document.getElementById(
-        "healthFill"
-    ).style.width =
-        game.health + "%";
-
-    document.getElementById(
-        "staminaFill"
-    ).style.width =
-        game.stamina + "%";
-
-    document.getElementById(
-        "deadEyeFill"
-    ).style.width =
-        game.deadEye + "%";
-
-    document.getElementById(
-        "ammo"
-    ).textContent =
-        game.ammo +
-        " / " +
-        game.reserveAmmo;
-
-    document.getElementById(
-        "money"
-    ).textContent =
-        "$" +
-        Math.floor(game.money);
-
-    const stars =
-        Math.ceil(game.wanted);
-
-    document.getElementById(
-        "wanted"
-    ).textContent =
-        "WANTED: " +
-        "★".repeat(stars) +
-        "☆".repeat(5-stars);
-
-    if (
-        game.mission <
-        missions.length
-    ) {
-
-        const m =
-            missions[game.mission];
-
-        document.getElementById(
-            "missionTitle"
-        ).textContent =
-            m.title;
-
-        document.getElementById(
-            "missionText"
-        ).textContent =
-            m.text +
-            "  [" +
-            currentMissionKills +
-            "/" +
-            m.kills +
-            "]";
-
-    }
-    else {
-
-        document.getElementById(
-            "missionTitle"
-        ).textContent =
-            "FRONTIER LEGEND";
-
-        document.getElementById(
-            "missionText"
-        ).textContent =
-            "You have conquered the frontier.";
-
-    }
-
-}
-
 
 /* =========================================================
    MESSAGE
 ========================================================= */
 
-let messageTimer = 0;
+function showMessage(text){
 
-function showMessage(
-    text
-) {
-
-    const message =
+    const element =
         document.getElementById(
             "message"
         );
 
-    message.textContent =
-        text;
+    element.textContent=text;
 
-    message.style.opacity =
-        1;
-
-    messageTimer = 3;
-
+    messageTimer=3;
 }
 
+function updateMessage(dt){
+
+    if(messageTimer>0){
+
+        messageTimer-=dt;
+
+        if(messageTimer<=0){
+
+            document.getElementById(
+                "message"
+            ).textContent="";
+        }
+    }
+}
 
 /* =========================================================
-   INTERACTION PROMPT
+   PROMPT
 ========================================================= */
 
-function updatePrompt() {
+function updatePrompt(){
 
-    const prompt =
-        document.getElementById(
-            "prompt"
-        );
-
-    let text = "";
-
-    const horseDistance =
+    const distance =
         player.position.distanceTo(
             horse.position
         );
 
-    if (
-        !game.mounted &&
-        horseDistance < 5
-    ) {
-
-        text =
-            "Press E to mount horse";
-
-    }
-    else {
-
-        for (
-            const npc of npcs
-        ) {
-
-            if (
-                player.position.distanceTo(
-                    npc.object.position
-                ) < 4
-            ) {
-
-                text =
-                    "Press F to talk";
-
-                break;
-
-            }
-
-        }
-
-    }
-
-    prompt.textContent =
-        text;
-
-}
-
-
-/* =========================================================
-   RELOAD UPDATE
-========================================================= */
-
-function updateReload(
-    dt
-) {
-
-    if (
-        reloadTimer <= 0
-    )
-        return;
-
-    reloadTimer -= dt;
-
-    if (
-        reloadTimer <= 0
-    ) {
-
-        const amount =
-            Math.min(
-                6 - game.ammo,
-                game.reserveAmmo
-            );
-
-        game.ammo += amount;
-
-        game.reserveAmmo -= amount;
-
-        showMessage(
-            "Reloaded."
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   SHOOTING LOOP
-========================================================= */
-
-let shootCooldown = 0;
-
-function updateShooting(
-    dt
-) {
-
-    shootCooldown -= dt;
-
-    if (
-        mouseDown &&
-        shootCooldown <= 0
-    ) {
-
-        shoot();
-
-        shootCooldown = .35;
-
-    }
-
-}
-
-
-/* =========================================================
-   DEAD EYE
-========================================================= */
-
-function updateDeadEye(
-    dt
-) {
-
-    if (
-        keys["KeyQ"] &&
-        game.deadEye > 0
-    ) {
-
-        game.deadEye -=
-            20 * dt;
-
-        /* Slow world */
-
-        for (
-            const enemy of outlaws
-        ) {
-
-            if (
-                enemy.alive
-            )
-                enemy.speed *= .96;
-
-        }
-
-    }
-    else {
-
-        game.deadEye +=
-            5 * dt;
-
-    }
-
-    game.deadEye =
-        THREE.MathUtils.clamp(
-            game.deadEye,
-            0,
-            100
-        );
-
-}
-
-
-/* =========================================================
-   DUST PARTICLES
-========================================================= */
-
-const dustParticles = [];
-
-const dustMaterial =
-    new THREE.MeshBasicMaterial({
-        color: 0xd0a56c,
-        transparent: true,
-        opacity: .35
-    });
-
-for (
-    let i=0;
-    i<500;
-    i++
-) {
-
-    const p =
-        new THREE.Mesh(
-            new THREE.SphereGeometry(
-                .06 + Math.random()*.12,
-                4,
-                4
-            ),
-            dustMaterial
-        );
-
-    p.position.set(
-        (Math.random()-.5)*500,
-        Math.random()*5,
-        (Math.random()-.5)*500
-    );
-
-    scene.add(p);
-
-    dustParticles.push(p);
-
-}
-
-
-function updateDust(
-    dt
-) {
-
-    for (
-        const p of dustParticles
-    ) {
-
-        p.position.y +=
-            dt * .25;
-
-        p.position.x +=
-            Math.sin(
-                p.position.y
-            ) * dt * .2;
-
-        if (
-            p.position.y > 6
-        )
-            p.position.y = 0;
-
-    }
-
-}
-
-
-/* =========================================================
-   START GAME
-========================================================= */
-
-document.getElementById(
-    "startButton"
-).addEventListener(
-    "click",
-    () => {
-
-        game.started = true;
+    if(distance<6){
 
         document.getElementById(
-            "startScreen"
-        ).style.display =
-            "none";
+            "prompt"
+        ).textContent=
+            "E - Mount Horse";
 
-        renderer.domElement.requestPointerLock();
+    }else{
 
-        showMessage(
-            "Welcome to the frontier."
+        document.getElementById(
+            "prompt"
+        ).textContent=
+            "";
+    }
+}
+
+/* =========================================================
+   HUD
+========================================================= */
+
+function updateHUD(){
+
+    document.getElementById(
+        "healthFill"
+    ).style.width =
+        game.health+"%";
+
+    document.getElementById(
+        "staminaFill"
+    ).style.width =
+        game.stamina+"%";
+
+    document.getElementById(
+        "deadFill"
+    ).style.width =
+        game.deadEye+"%";
+
+    document.getElementById(
+        "ammo"
+    ).textContent =
+        ammo+" / "+reserveAmmo;
+
+    let stars="";
+
+    const wanted =
+        Math.round(
+            game.wanted
         );
 
-        updateHUD();
+    for(let i=0;i<5;i++){
 
+        stars +=
+            i<wanted ? "★" : "☆";
     }
-);
 
+    document.getElementById(
+        "wanted"
+    ).textContent =
+        "Wanted: "+stars;
+}
 
 /* =========================================================
    RESIZE
 ========================================================= */
 
-window.addEventListener(
-    "resize",
-    () => {
+function resize(){
 
-        camera.aspect =
-            innerWidth / innerHeight;
+    camera.aspect =
+        window.innerWidth/
+        window.innerHeight;
 
-        camera.updateProjectionMatrix();
+    camera.updateProjectionMatrix();
 
-        renderer.setSize(
-            innerWidth,
-            innerHeight
-        );
-
-    }
-);
-
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
+}
 
 /* =========================================================
-   MAIN GAME LOOP
+   MAIN LOOP
 ========================================================= */
 
-const clock =
-    new THREE.Clock();
-
-function animate() {
+function animate(){
 
     requestAnimationFrame(
         animate
@@ -2914,67 +1778,47 @@ function animate() {
             .05
         );
 
-    if (
-        game.started &&
-        !game.gameOver
-    ) {
+    if(
+        gameStarted &&
+        !paused
+    ){
 
         updatePlayer(dt);
 
         updateCamera(dt);
 
-        updateHorse(dt);
-
         updateBullets(dt);
 
-        updateOutlaws(dt);
+        updateEnemies(dt);
 
         updateNPCs(dt);
 
         updateReload(dt);
 
-        updateShooting(dt);
-
-        updateDeadEye(dt);
+        updateStats(dt);
 
         updateWanted(dt);
 
         updateTime(dt);
 
-        updateDust(dt);
+        updateMessage(dt);
 
         updatePrompt();
 
         updateHUD();
-
-        if (
-            messageTimer > 0
-        ) {
-
-            messageTimer -= dt;
-
-            if (
-                messageTimer <= 0
-            ) {
-
-                document.getElementById(
-                    "message"
-                ).style.opacity = 0;
-
-            }
-
-        }
-
     }
 
     renderer.render(
         scene,
         camera
     );
-
 }
 
-animate();
+/* =========================================================
+   START
+========================================================= */
+
+init();
 
 </script>
 
