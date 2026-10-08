@@ -1,264 +1,836 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dodge the Meteors 🚀</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wild West - Canvas Game</title>
+<style>
+    * { box-sizing: border-box; }
 
     body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #09091a;
-      color: white;
-      font-family: Arial, sans-serif;
-      overflow: hidden;
+        margin: 0;
+        overflow: hidden;
+        background: #111;
+        font-family: Arial, sans-serif;
+        color: white;
     }
 
-    #game {
-      position: relative;
-      width: 500px;
-      height: 700px;
-      max-width: 95vw;
-      max-height: 90vh;
-      overflow: hidden;
-      border: 3px solid #5c5cff;
-      border-radius: 15px;
-      background:
-        radial-gradient(circle at 20% 20%, #ffffff 1px, transparent 2px),
-        radial-gradient(circle at 80% 60%, #ffffff 1px, transparent 2px),
-        radial-gradient(circle at 40% 90%, #ffffff 1px, transparent 2px),
-        #10102d;
-      background-size: 120px 120px, 180px 180px, 250px 250px;
-      box-shadow: 0 0 40px #4c4cff55;
+    canvas {
+        display: block;
+        background: #c9955b;
     }
 
-    #player {
-      position: absolute;
-      bottom: 25px;
-      left: 225px;
-      width: 50px;
-      height: 50px;
-      font-size: 42px;
-      line-height: 50px;
-      text-align: center;
-      user-select: none;
+    #ui {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 10;
+        background: rgba(0,0,0,.55);
+        padding: 12px 16px;
+        border-radius: 8px;
+        min-width: 190px;
     }
 
-    .meteor {
-      position: absolute;
-      width: 42px;
-      height: 42px;
-      font-size: 38px;
-      line-height: 42px;
-      text-align: center;
-      user-select: none;
+    #mission {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        background: rgba(0,0,0,.55);
+        padding: 12px 16px;
+        border-radius: 8px;
+        text-align: right;
     }
 
-    #score {
-      position: absolute;
-      top: 15px;
-      left: 20px;
-      font-size: 22px;
-      font-weight: bold;
-      z-index: 10;
+    #help {
+        position: fixed;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,.65);
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-size: 14px;
     }
 
-    #gameOver {
-      position: absolute;
-      inset: 0;
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: #000000bb;
-      text-align: center;
-      z-index: 20;
+    .bar {
+        width: 160px;
+        height: 12px;
+        background: #333;
+        margin-top: 4px;
+        border-radius: 5px;
+        overflow: hidden;
     }
 
-    #gameOver h1 {
-      font-size: 48px;
-      margin: 0 0 10px;
-      color: #ff5c8a;
+    #healthBar {
+        height: 100%;
+        background: #c33;
+        width: 100%;
     }
 
-    button {
-      border: none;
-      border-radius: 10px;
-      padding: 12px 25px;
-      margin-top: 15px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      background: #5c5cff;
-      color: white;
+    #wanted {
+        color: #ff5555;
+        letter-spacing: 3px;
     }
-
-    button:hover {
-      background: #7777ff;
-    }
-
-    #hint {
-      position: absolute;
-      bottom: 8px;
-      width: 100%;
-      text-align: center;
-      opacity: 0.5;
-      font-size: 13px;
-    }
-  </style>
+</style>
 </head>
-
 <body>
 
-<div id="game">
-  <div id="score">Score: 0</div>
-  <div id="player">🚀</div>
-  <div id="hint">Use ← → to move</div>
+<canvas id="game"></canvas>
 
-  <div id="gameOver">
-    <h1>💥 BOOM!</h1>
-    <div id="finalScore"></div>
-    <button onclick="restartGame()">Play Again</button>
-  </div>
+<div id="ui">
+    <b>WILD WEST</b><br>
+    Health
+    <div class="bar">
+        <div id="healthBar"></div>
+    </div>
+    Ammo: <span id="ammo">12</span><br>
+    Money: $<span id="money">25</span><br>
+    Wanted: <span id="wanted">☆☆☆☆☆</span>
+</div>
+
+<div id="mission">
+    <b>MISSION</b>
+    <div id="missionText">Ride to the town</div>
+</div>
+
+<div id="help">
+    WASD / Arrow Keys: Move &nbsp; | &nbsp;
+    Mouse: Aim &nbsp; | &nbsp;
+    Click: Shoot &nbsp; | &nbsp;
+    E: Mount Horse
 </div>
 
 <script>
-  const game = document.getElementById("game");
-  const player = document.getElementById("player");
-  const scoreText = document.getElementById("score");
-  const gameOverScreen = document.getElementById("gameOver");
-  const finalScore = document.getElementById("finalScore");
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-  let playerX = 225;
-  let score = 0;
-  let speed = 3;
-  let gameRunning = true;
-  let keys = {};
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
 
-  document.addEventListener("keydown", e => {
-    keys[e.key] = true;
-  });
+// -----------------------------
+// GAME STATE
+// -----------------------------
 
-  document.addEventListener("keyup", e => {
-    keys[e.key] = false;
-  });
+const keys = {};
+const mouse = {
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    down: false
+};
 
-  function movePlayer() {
-    if (!gameRunning) return;
+document.addEventListener("keydown", e => {
+    keys[e.key.toLowerCase()] = true;
 
-    if (keys["ArrowLeft"]) {
-      playerX -= 7;
+    if (e.key.toLowerCase() === "e") {
+        toggleHorse();
+    }
+});
+
+document.addEventListener("keyup", e => {
+    keys[e.key.toLowerCase()] = false;
+});
+
+canvas.addEventListener("mousemove", e => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+});
+
+canvas.addEventListener("mousedown", () => {
+    mouse.down = true;
+    shoot();
+});
+
+canvas.addEventListener("mouseup", () => {
+    mouse.down = false;
+});
+
+// -----------------------------
+// WORLD
+// -----------------------------
+
+const world = {
+    width: 4000,
+    height: 3000
+};
+
+const player = {
+    x: 1900,
+    y: 1500,
+    radius: 16,
+    speed: 3,
+    health: 100,
+    ammo: 12,
+    money: 25,
+    riding: false,
+    cooldown: 0
+};
+
+const horse = {
+    x: 1850,
+    y: 1540,
+    radius: 25
+};
+
+const camera = {
+    x: 0,
+    y: 0
+};
+
+const bullets = [];
+const enemies = [];
+const particles = [];
+const cacti = [];
+const rocks = [];
+
+// -----------------------------
+// GENERATE WORLD
+// -----------------------------
+
+for (let i = 0; i < 130; i++) {
+    cacti.push({
+        x: Math.random() * world.width,
+        y: Math.random() * world.height,
+        size: 10 + Math.random() * 15
+    });
+}
+
+for (let i = 0; i < 90; i++) {
+    rocks.push({
+        x: Math.random() * world.width,
+        y: Math.random() * world.height,
+        size: 5 + Math.random() * 12
+    });
+}
+
+// Town
+const town = {
+    x: 1500,
+    y: 950,
+    width: 900,
+    height: 650
+};
+
+// Buildings
+const buildings = [
+    {x:1550,y:1000,w:180,h:120,name:"Sheriff"},
+    {x:1800,y:1000,w:210,h:120,name:"Saloon"},
+    {x:2080,y:1000,w:180,h:120,name:"General Store"},
+    {x:1600,y:1250,w:230,h:130,name:"Stable"},
+    {x:1940,y:1250,w:250,h:130,name:"Hotel"}
+];
+
+// -----------------------------
+// ENEMIES
+// -----------------------------
+
+function spawnEnemy() {
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 500 + Math.random() * 500;
+
+    enemies.push({
+        x: player.x + Math.cos(angle) * distance,
+        y: player.y + Math.sin(angle) * distance,
+        radius: 15,
+        health: 40,
+        speed: 1.1,
+        cooldown: 0
+    });
+}
+
+// -----------------------------
+// SHOOTING
+// -----------------------------
+
+function shoot() {
+    if (player.cooldown > 0 || player.ammo <= 0)
+        return;
+
+    player.cooldown = 15;
+    player.ammo--;
+
+    const angle = Math.atan2(
+        mouse.y - canvas.height / 2,
+        mouse.x - canvas.width / 2
+    );
+
+    bullets.push({
+        x: player.x,
+        y: player.y,
+        vx: Math.cos(angle) * 12,
+        vy: Math.sin(angle) * 12,
+        life: 80,
+        damage: 25
+    });
+
+    for (let i = 0; i < 4; i++) {
+        particles.push({
+            x: player.x,
+            y: player.y,
+            vx: Math.cos(angle) * (Math.random()*2+1),
+            vy: Math.sin(angle) * (Math.random()*2+1),
+            life: 15
+        });
+    }
+}
+
+// -----------------------------
+// HORSE
+// -----------------------------
+
+function toggleHorse() {
+    const distance = Math.hypot(
+        player.x - horse.x,
+        player.y - horse.y
+    );
+
+    if (distance < 70) {
+        player.riding = !player.riding;
+        player.speed = player.riding ? 6 : 3;
+
+        if (!player.riding) {
+            horse.x = player.x - 35;
+            horse.y = player.y;
+        }
+    }
+}
+
+// -----------------------------
+// UPDATE
+// -----------------------------
+
+function update() {
+
+    // Movement
+    let dx = 0;
+    let dy = 0;
+
+    if (keys["w"] || keys["arrowup"]) dy--;
+    if (keys["s"] || keys["arrowdown"]) dy++;
+    if (keys["a"] || keys["arrowleft"]) dx--;
+    if (keys["d"] || keys["arrowright"]) dx++;
+
+    if (dx || dy) {
+        const length = Math.hypot(dx,dy);
+        dx /= length;
+        dy /= length;
+
+        player.x += dx * player.speed;
+        player.y += dy * player.speed;
     }
 
-    if (keys["ArrowRight"]) {
-      playerX += 7;
+    player.x = Math.max(20, Math.min(world.width-20, player.x));
+    player.y = Math.max(20, Math.min(world.height-20, player.y));
+
+    if (player.riding) {
+        horse.x = player.x - 10;
+        horse.y = player.y + 10;
     }
 
-    playerX = Math.max(0, Math.min(game.clientWidth - 50, playerX));
-    player.style.left = playerX + "px";
-  }
+    // Camera
+    camera.x = player.x - canvas.width / 2;
+    camera.y = player.y - canvas.height / 2;
 
-  function createMeteor() {
-    if (!gameRunning) return;
+    camera.x = Math.max(0, Math.min(world.width-canvas.width,camera.x));
+    camera.y = Math.max(0, Math.min(world.height-canvas.height,camera.y));
 
-    const meteor = document.createElement("div");
-    meteor.className = "meteor";
-    meteor.textContent = "☄️";
+    // Weapon cooldown
+    if (player.cooldown > 0)
+        player.cooldown--;
 
-    const x = Math.random() * (game.clientWidth - 42);
-    let y = -50;
+    // Automatic shooting while mouse is held
+    if (mouse.down)
+        shoot();
 
-    meteor.style.left = x + "px";
-    meteor.style.top = y + "px";
-    game.appendChild(meteor);
+    // Bullets
+    for (let i = bullets.length-1; i >= 0; i--) {
 
-    function fall() {
-      if (!gameRunning) {
-        meteor.remove();
-        return;
-      }
+        const b = bullets[i];
 
-      y += speed;
-      meteor.style.top = y + "px";
+        b.x += b.vx;
+        b.y += b.vy;
+        b.life--;
 
-      // Collision detection
-      const p = player.getBoundingClientRect();
-      const m = meteor.getBoundingClientRect();
+        let hit = false;
 
-      if (
-        p.left < m.right &&
-        p.right > m.left &&
-        p.top < m.bottom &&
-        p.bottom > m.top
-      ) {
-        endGame();
-        return;
-      }
+        for (let j = enemies.length-1; j >= 0; j--) {
 
-      // Meteor escaped
-      if (y > game.clientHeight) {
-        meteor.remove();
-        score++;
-        scoreText.textContent = "Score: " + score;
+            const enemy = enemies[j];
 
-        // Gradually increase difficulty
-        if (score % 10 === 0) {
-          speed += 0.5;
+            const d = Math.hypot(
+                b.x-enemy.x,
+                b.y-enemy.y
+            );
+
+            if (d < enemy.radius + 5) {
+
+                enemy.health -= b.damage;
+                hit = true;
+
+                createExplosion(b.x,b.y);
+
+                if (enemy.health <= 0) {
+                    enemies.splice(j,1);
+
+                    player.money += 10;
+                }
+
+                break;
+            }
         }
 
-        return;
-      }
-
-      requestAnimationFrame(fall);
+        if (
+            hit ||
+            b.life <= 0 ||
+            b.x < 0 ||
+            b.y < 0 ||
+            b.x > world.width ||
+            b.y > world.height
+        ) {
+            bullets.splice(i,1);
+        }
     }
 
-    requestAnimationFrame(fall);
-  }
+    // Enemies
+    enemies.forEach(enemy => {
 
-  function endGame() {
-    gameRunning = false;
+        const angle = Math.atan2(
+            player.y-enemy.y,
+            player.x-enemy.x
+        );
 
-    finalScore.textContent = `You survived with a score of ${score}!`;
-    gameOverScreen.style.display = "flex";
-  }
+        const distance = Math.hypot(
+            player.x-enemy.x,
+            player.y-enemy.y
+        );
 
-  function restartGame() {
-    document.querySelectorAll(".meteor").forEach(m => m.remove());
+        if (distance < 600) {
 
-    playerX = 225;
-    score = 0;
-    speed = 3;
-    gameRunning = true;
+            enemy.x += Math.cos(angle)*enemy.speed;
+            enemy.y += Math.sin(angle)*enemy.speed;
 
-    player.style.left = playerX + "px";
-    scoreText.textContent = "Score: 0";
-    gameOverScreen.style.display = "none";
+            if (enemy.cooldown > 0)
+                enemy.cooldown--;
 
-    gameLoop();
-  }
+            if (distance < 300 && enemy.cooldown <= 0) {
 
-  function gameLoop() {
-    if (!gameRunning) return;
+                enemy.cooldown = 80;
 
-    movePlayer();
+                const spread = (Math.random()-.5)*.2;
+
+                bullets.push({
+                    x: enemy.x,
+                    y: enemy.y,
+                    vx: Math.cos(angle+spread)*6,
+                    vy: Math.sin(angle+spread)*6,
+                    life: 80,
+                    damage: 8
+                });
+            }
+        }
+
+        if (distance < 30) {
+            player.health -= 0.2;
+        }
+    });
+
+    // Particles
+    for (let i=particles.length-1;i>=0;i--) {
+
+        const p = particles[i];
+
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+
+        if (p.life <= 0)
+            particles.splice(i,1);
+    }
+
+    // Spawn enemies if wanted
+    if (Math.random() < 0.004 && enemies.length < 8) {
+        spawnEnemy();
+    }
+
+    updateMission();
+
+    // Respawn
+    if (player.health <= 0) {
+        player.health = 100;
+        player.x = 1900;
+        player.y = 1500;
+        player.money = Math.max(0,player.money-20);
+        enemies.length = 0;
+    }
+
+    updateUI();
+}
+
+// -----------------------------
+// MISSION
+// -----------------------------
+
+let missionStage = 0;
+
+function updateMission() {
+
+    const distanceToTown = Math.hypot(
+        player.x-(town.x+town.width/2),
+        player.y-(town.y+town.height/2)
+    );
+
+    if (missionStage === 0 && distanceToTown < 400) {
+        missionStage = 1;
+    }
+
+    if (missionStage === 1 && enemies.length >= 3) {
+        missionStage = 2;
+    }
+
+    if (missionStage === 2 && enemies.length === 0) {
+        missionStage = 3;
+        player.money += 50;
+    }
+}
+
+// -----------------------------
+// DRAW
+// -----------------------------
+
+function draw() {
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    ctx.save();
+
+    ctx.translate(-camera.x,-camera.y);
+
+    // Ground
+    ctx.fillStyle = "#c99659";
+    ctx.fillRect(0,0,world.width,world.height);
+
+    // Dirt patches
+    for (let i=0;i<100;i++) {
+        const x = (i*731)%world.width;
+        const y = (i*391)%world.height;
+
+        ctx.fillStyle = "rgba(120,75,35,.12)";
+        ctx.beginPath();
+        ctx.ellipse(x,y,100,40,0,0,Math.PI*2);
+        ctx.fill();
+    }
+
+    // Roads
+    ctx.fillStyle = "#a87948";
+
+    ctx.fillRect(
+        town.x,
+        town.y+270,
+        town.width,
+        100
+    );
+
+    ctx.fillRect(
+        town.x+390,
+        town.y,
+        110,
+        town.height
+    );
+
+    // Town
+    ctx.fillStyle = "#d5a266";
+    ctx.fillRect(
+        town.x,
+        town.y,
+        town.width,
+        town.height
+    );
+
+    // Buildings
+    buildings.forEach(b => {
+
+        ctx.fillStyle = "#75472c";
+        ctx.fillRect(b.x,b.y,b.w,b.h);
+
+        ctx.fillStyle = "#5a3022";
+        ctx.fillRect(b.x-10,b.y-20,b.w+20,25);
+
+        ctx.fillStyle = "#f1d69b";
+        ctx.font = "16px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(
+            b.name,
+            b.x+b.w/2,
+            b.y+b.h/2
+        );
+    });
+
+    // Cacti
+    cacti.forEach(c => {
+
+        ctx.fillStyle = "#387344";
+
+        ctx.fillRect(
+            c.x-4,
+            c.y-c.size,
+            8,
+            c.size*2
+        );
+
+        ctx.fillRect(
+            c.x-14,
+            c.y-5,
+            10,
+            6
+        );
+
+        ctx.fillRect(
+            c.x+4,
+            c.y+5,
+            10,
+            6
+        );
+    });
+
+    // Rocks
+    rocks.forEach(r => {
+
+        ctx.fillStyle = "#806344";
+
+        ctx.beginPath();
+        ctx.arc(r.x,r.y,r.size,0,Math.PI*2);
+        ctx.fill();
+    });
+
+    // Horse
+    drawHorse();
+
+    // Enemies
+    enemies.forEach(drawEnemy);
+
+    // Player
+    drawPlayer();
+
+    // Bullets
+    bullets.forEach(b => {
+
+        ctx.fillStyle = "#222";
+
+        ctx.beginPath();
+        ctx.arc(b.x,b.y,4,0,Math.PI*2);
+        ctx.fill();
+    });
+
+    // Particles
+    particles.forEach(p => {
+
+        ctx.fillStyle = "#f5c15b";
+
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,3,0,Math.PI*2);
+        ctx.fill();
+    });
+
+    ctx.restore();
+
+    // Crosshair
+    drawCrosshair();
+}
+
+function drawPlayer() {
+
+    ctx.save();
+
+    ctx.translate(player.x,player.y);
+
+    const angle = Math.atan2(
+        mouse.y-canvas.height/2,
+        mouse.x-canvas.width/2
+    );
+
+    ctx.rotate(angle);
+
+    // Body
+    ctx.fillStyle = "#26384a";
+    ctx.fillRect(-12,-13,24,28);
+
+    // Head
+    ctx.fillStyle = "#d69a6a";
+    ctx.beginPath();
+    ctx.arc(0,-20,9,0,Math.PI*2);
+    ctx.fill();
+
+    // Hat
+    ctx.fillStyle = "#3b2419";
+    ctx.fillRect(-15,-29,30,5);
+
+    ctx.fillRect(-8,-38,16,10);
+
+    // Gun
+    ctx.fillStyle = "#222";
+    ctx.fillRect(10,-5,22,5);
+
+    ctx.restore();
+}
+
+function drawHorse() {
+
+    ctx.save();
+
+    ctx.translate(horse.x,horse.y);
+
+    ctx.fillStyle = "#633d27";
+
+    ctx.beginPath();
+    ctx.ellipse(0,0,28,17,0,0,Math.PI*2);
+    ctx.fill();
+
+    // Head
+    ctx.beginPath();
+    ctx.ellipse(25,-10,12,9,0,0,Math.PI*2);
+    ctx.fill();
+
+    // Legs
+    ctx.fillRect(-15,10,6,20);
+    ctx.fillRect(8,10,6,20);
+
+    // Saddle
+    ctx.fillStyle = "#332116";
+    ctx.fillRect(-10,-8,22,10);
+
+    ctx.restore();
+}
+
+function drawEnemy(enemy) {
+
+    ctx.save();
+
+    ctx.translate(enemy.x,enemy.y);
+
+    ctx.fillStyle = "#5c2020";
+    ctx.fillRect(-12,-10,24,25);
+
+    ctx.fillStyle = "#d69a6a";
+
+    ctx.beginPath();
+    ctx.arc(0,-17,8,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = "#20140f";
+    ctx.fillRect(-14,-26,28,5);
+
+    ctx.fillStyle = "#111";
+    ctx.fillRect(7,-3,25,4);
+
+    // Health
+    ctx.fillStyle = "#222";
+    ctx.fillRect(-18,-35,36,4);
+
+    ctx.fillStyle = "#e33";
+    ctx.fillRect(
+        -18,
+        -35,
+        36*(enemy.health/40),
+        4
+    );
+
+    ctx.restore();
+}
+
+function drawCrosshair() {
+
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+    ctx.arc(mouse.x,mouse.y,9,0,Math.PI*2);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(mouse.x-15,mouse.y);
+    ctx.lineTo(mouse.x-5,mouse.y);
+    ctx.moveTo(mouse.x+5,mouse.y);
+    ctx.lineTo(mouse.x+15,mouse.y);
+    ctx.moveTo(mouse.x,mouse.y-15);
+    ctx.lineTo(mouse.x,mouse.y-5);
+    ctx.moveTo(mouse.x,mouse.y+5);
+    ctx.lineTo(mouse.x,mouse.y+15);
+    ctx.stroke();
+}
+
+// -----------------------------
+// EFFECTS
+// -----------------------------
+
+function createExplosion(x,y) {
+
+    for(let i=0;i<8;i++) {
+
+        const a = Math.random()*Math.PI*2;
+
+        particles.push({
+            x:x,
+            y:y,
+            vx:Math.cos(a)*3,
+            vy:Math.sin(a)*3,
+            life:20
+        });
+    }
+}
+
+// -----------------------------
+// UI
+// -----------------------------
+
+function updateUI() {
+
+    document.getElementById("healthBar").style.width =
+        Math.max(0,player.health) + "%";
+
+    document.getElementById("ammo").textContent =
+        player.ammo;
+
+    document.getElementById("money").textContent =
+        player.money;
+
+    let stars = "☆☆☆☆☆";
+
+    if (enemies.length >= 2) stars = "★☆☆☆☆";
+    if (enemies.length >= 4) stars = "★★☆☆☆";
+    if (enemies.length >= 6) stars = "★★★☆☆";
+    if (enemies.length >= 8) stars = "★★★★☆";
+
+    document.getElementById("wanted").textContent = stars;
+
+    const mission = document.getElementById("missionText");
+
+    if (missionStage === 0)
+        mission.textContent = "Ride to the town";
+
+    else if (missionStage === 1)
+        mission.textContent = "Lawmen are after you!";
+
+    else if (missionStage === 2)
+        mission.textContent = "Defeat the outlaws";
+
+    else
+        mission.textContent = "Mission complete! +$50";
+}
+
+// -----------------------------
+// GAME LOOP
+// -----------------------------
+
+function gameLoop() {
+    update();
+    draw();
     requestAnimationFrame(gameLoop);
-  }
+}
 
-  // Spawn meteors
-  setInterval(() => {
-    if (gameRunning) {
-      createMeteor();
-    }
-  }, 700);
-
-  gameLoop();
+gameLoop();
 </script>
 
 </body>
